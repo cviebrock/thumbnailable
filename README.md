@@ -71,6 +71,15 @@ $user->thumbnail('headshot', 'small');
 $user->thumbnail('headshot', '75x75');
 ```
 
+And when you're all done, deleting is a piece of cake too:
+
+```php
+$user->delete();
+```
+
+The bundle will automatically delete the original uploaded file and
+all thumbnails associated with it.
+
 
 ## Configuration
 
