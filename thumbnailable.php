@@ -19,6 +19,19 @@ trait Thumbnailable {
 			Config::get('thumbnailable', array() )
 		);
 
+		// does the model have a configuration defined?
+		// if so, merge that in
+		if (isset(static::$thumbnailable)) {
+			$class = Str::lower(__CLASS__);
+			if (!array_key_exists($class, $config)) {
+				$config[ $class ] = array();
+			}
+			$config[ $class ] = array_merge(
+				$config[ $class ],
+				static::$thumbnailable
+			);
+		}
+
 		// store it in the config for easy access
 		Config::set('thumbnailable', $config);
 
@@ -78,11 +91,11 @@ trait Thumbnailable {
 		}
 
 		// does the requested size exist or can we generate it on the fly?
-		if ( in_array($size, $sizes) || $this->thumbnailable_config('strict_sizes',$field) ) {
-			return $this->thumbnail_resize_image( $field, $size );
+		if ( !in_array($size, $sizes) && $this->thumbnailable_config('strict_sizes',$field) ) {
+			throw new Thumbnailable_Exception("Can not get $size thumbnail for $field: strict_sizes enabled.");
 		}
 
-		throw new Thumbnailable_Exception("Can not get $size thumbnail for $field: strict_sizes enabled.");
+		return $this->thumbnail_resize_image( $field, $size );
 
 	}
 

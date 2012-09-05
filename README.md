@@ -274,11 +274,53 @@ with one size, so we don't need to define a `default_field` or `default_size`.
 All of the following lines of code will return the same thing:
 
 ```php
-$dog->thumnail('image','50x50');
-$dog->thumnail('image','small');
-$dog->thumnail('image');
-$dog->thumnail();
+$dog->thumbnail('image','50x50');
+$dog->thumbnail('image','small');
+$dog->thumbnail('image');
+$dog->thumbnail();
 ```
+
+
+## In-model Configuration
+
+An even more elegant method of configuring your models for thumbnailing is to do it
+in the model itself:
+
+```php
+class User extends Eloquent {
+
+	use Thumbnailable;
+
+	public static $thumbnailable = array(
+		'default_field' => 'headshot',
+		'fields' => array(
+			'headshot' => array(
+				'default_size' => 'small',
+				'sizes' => array(
+					'small'  => '50x50',
+					'medium' => '100x100',
+					'large'  => '300x300',
+				),
+			),
+			'alternate' => array(
+				'strict_size' => false,
+			),
+		),
+	);
+
+	public function __construct($attributes = array(), $exists = false)
+	{
+		$this->thumbnailable_init();
+		parent::__construct($attributes, $exists);
+	}
+
+}
+```
+
+This puts all the configuration for that model in the model itself, which may
+be more along your personal coding style and/or easier to maintain.  In this case,
+the `application/config/thumbnailable.php` file only needs to define any global options.
+
 
 ## Credits
 
