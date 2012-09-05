@@ -48,10 +48,11 @@ return array(
 	'thumbnail_background' => array( 255, 255, 255),
 
 
-	// The array of model attributes/database fields that define the thumbnailable
-	// fields.
-	// The key of the array is the attribute name, the value is an array of key-value
-	// pairs that define settings for that particular field.
+	// The array of models that are thumbnailable and their configurations.
+	// These can be defined in the main application/config/thumbnailable.php file,
+	// or defined within the models as:
+	//
+	//   public static $thumbnailable = array(...)
 	//
 
 	/* EXAMPLE
@@ -61,6 +62,7 @@ return array(
 		// what image to return if none is given
 		'default_field' => 'image',
 
+		// list of fields in the model that are thumbnailable
 		'fields'        => array(
 
 			'image' => array(
