@@ -48,10 +48,6 @@ return array(
 	'thumbnail_background' => array( 255, 255, 255),
 
 
-	// Default field
-	'default_field' => 'image',
-
-
 	// The array of model attributes/database fields that define the thumbnailable
 	// fields.
 	// The key of the array is the attribute name, the value is an array of key-value
@@ -62,10 +58,10 @@ return array(
 
 	'user' => array(
 
-		'fields'        => array(
+		// what image to return if none is given
+		'default_field' => 'image',
 
-			// what image to return if none is given
-			'default_field' => 'image',
+		'fields'        => array(
 
 			'image' => array(
 

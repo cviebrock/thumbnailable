@@ -14,14 +14,17 @@ trait Thumbnailable {
 
 		// load the default configuration from the bundle
 		// and override it with anything set in the application
-		$config = Config::get('thumbnailable', Config::get('eloquent-thumbnailable::thumbnailable') );
+		$config = array_merge(
+			Config::get('eloquent-thumbnailable::thumbnailable'),
+			Config::get('thumbnailable', array() )
+		);
 
 		// store it in the config for easy access
 		Config::set('thumbnailable', $config);
 
 		// set up event listeners so we can intercept saves and deletes
 		Event::listen('eloquent.saving: ' . __CLASS__ , array($this,'thumbnailable_saving'));
-		// Event::listen('eloquent.deleted: ' . __CLASS__ , array($this,'thumbnailable_deleted'));
+		Event::listen('eloquent.deleted: ' . __CLASS__ , array($this,'thumbnailable_deleted'));
 
 	}
 
@@ -35,41 +38,75 @@ trait Thumbnailable {
 		// Find default field, if it's not given
 		$field = $field ?: $this->thumbnailable_config('default_field');
 		if (!$field) {
-			throw new Thumbnailable_Exception("No thumbnail field given and no default defined.");
+			$fields = $this->thumbnailable_config('fields');
+			if (count($fields)==1) {
+				$field = head( array_keys($fields) );
+			} else {
+				throw new Thumbnailable_Exception("No thumbnail field given and no default defined.");
+			}
 		}
 
 		// is this a thumbnailable field?
-		if ( !( $sizes = $this->thumbnailable_config('sizes', $field ) ) ) {
-			throw new Thumbnailable_Exception("Field {$field} is not thumbnailable.");
+		if ( !$this->thumbnailable_config('fields', $field ) ) {
+			throw new Thumbnailable_Exception("Field $field is not thumbnailable.");
 		}
 
-		// does the request size exist?
-		if ( in_array($size, $sizes) ) {
-			return $this->thumbnail_resize_image( $field, $size, true );
+		// get all sizes
+		$sizes = $this->thumbnailable_config('sizes',$field);
+
+		// Find default size, if it's not given
+		$size = $size ?: $this->thumbnailable_config('default_size', $field);
+		if (!$size) {
+			if (count($sizes)==1) {
+				$size = head( $sizes );
+			} else {
+				throw new Thumbnailable_Exception("No thumbnail size given for $field and no default defined.");
+			}
 		}
 
-		// size does not exist, so can we generate it on the fly?
-		if ( $this->thumbnailable_config('strict_sizes') ) {
-			throw new Thumbnailable_Exception("Can not get {$size} thumbnail for {$field}: not allowed.");
+		// are we asking for the original?
+		if ($size==='original') {
+			if ( static::thumbnailable_config('keep_original', $field ) ) {
+				return $this->thumbnail_resize_image( $field, 'original' );
+			}
+			throw new Thumbnailable_Exception("Original image for $filed not kept.");
 		}
 
-		// generate it on the fly
-		return $this->thumbnail_resize_image( $field, $size, true );
+		// are we asking for a size name instead of WxH dimensions?
+		if ( array_key_exists($size, $sizes) ) {
+			$size = $sizes[$size];
+		}
+
+		// does the requested size exist or can we generate it on the fly?
+		if ( in_array($size, $sizes) || $this->thumbnailable_config('strict_sizes',$field) ) {
+			return $this->thumbnail_resize_image( $field, $size );
+		}
+
+		throw new Thumbnailable_Exception("Can not get $size thumbnail for $field: strict_sizes enabled.");
 
 	}
 
+
+	/*
+	 * Get the full path to a thumbnail image
+	 */
+	public function thumbnail_path( $field=null, $size=null )
+	{
+		$directory = static::thumbnailable_config('storage_dir', $field );
+		return $directory . DS . $this->thumbnail( $field, $size );
+	}
 
 
 	/*
 	 * Method that gets fired when the eloquent model is saved.
 	 * Handles the image upload, and pre-generates any needed thumbnails
 	 */
-	public function thumbnailable_saving()
+	public function thumbnailable_saving($model)
 	{
 
 		// check that the model has fields configured for thumbnailing
 		if ( !( $fields = static::thumbnailable_config('fields') ) ) {
-			throw new Thumbnailable_Exception('No fields configured for thumbnailing');
+			throw new Thumbnailable_Exception("No fields configured for thumbnailing.");
 		}
 
 		// loop through each field to thumbnail
@@ -77,19 +114,19 @@ trait Thumbnailable {
 
 			// find the storage directory
 			if ( !( $directory = static::thumbnailable_config('storage_dir', $field ) ) ) {
-				throw new Thumbnailable_Exception('No storage directory specified for '.__CLASS__.'->'.$field);
+				throw new Thumbnailable_Exception("No storage directory specified for ".__CLASS__."->$field.");
 			}
 
 			// create it if it doesn't exist
 			if ( !File::mkdir($directory) ) {
-				throw new Thumbnailable_Exception('Can not create directory '.$directory);
+				throw new Thumbnailable_Exception("Can not create directory $directory.");
 			}
 
 			// if the model is new or this field has changed, we thumbnail it
-			if ( !$this->exists || $this->changed($field) ) {
+			if ( !$model->exists || $model->changed($field) ) {
 
 				// get the PHP file upload info array
-				$array = $this->get_attribute($field);
+				$array = $model->get_attribute($field);
 
 				// skip it if it's null, empty or not an array
 				// (maybe because the field isn't required)
@@ -99,12 +136,12 @@ trait Thumbnailable {
 
 				// make sure it's an uploaded file
 				if ( !is_uploaded_file($array['tmp_name'])) {
-					throw new Thumbnailable_Exception('File upload hijack attempt!');
+					throw new Thumbnailable_Exception("File upload hijack attempt!");
 				}
 
 				// make sure it's an image file, and get the "proper" file extension
 				if ( !( $ext = static::thumbnail_get_image_type( $array['tmp_name'] ) ) ) {
-					throw new Thumbnailable_Exception('Uploaded '.__CLASS__.'->'.$field.' is not a valid image file');
+					throw new Thumbnailable_Exception("Uploaded ".__CLASS__."->$field is not a valid image file.");
 				}
 
 				// generate a random file name
@@ -112,16 +149,16 @@ trait Thumbnailable {
 
 				// move uploaded file to new location
 				if ( !move_uploaded_file($array['tmp_name'], $directory.DS.$newfile) ) {
-					throw new Thumbnailable_Exception('Could not move uploaded file to '.$directory.DS.$newfile);
+					throw new Thumbnailable_Exception("Could not move uploaded file to $directory".DS."$newfile.");
 				}
 
 				// update the eloquent model with the filename
-				$this->set_attribute($field, $newfile);
+				$model->set_attribute($field, $newfile);
 
 
 				// if the thumbs are to be generated on save, do it
 				if ( static::thumbnailable_config('on_save', $field ) ) {
-					$this->thumbnail_generate_all($field);
+					$model->thumbnail_generate_all($field);
 				}
 
 				// keep original?
@@ -138,6 +175,62 @@ trait Thumbnailable {
 	}
 
 
+	/*
+	 * Method that gets fired when the eloquent model is being deleted.
+	 * Erases the original file and any generated thumbnails
+	 */
+	public function thumbnailable_deleted($model)
+	{
+
+		// check that the model has fields configured for thumbnailing
+		if ( !( $fields = static::thumbnailable_config('fields') ) ) {
+			return true;
+		}
+
+
+		// loop through each field to thumbnail
+		foreach( $fields as $field=>$info ) {
+
+			// find the storage directory
+			if ( !( $directory = static::thumbnailable_config('storage_dir', $field ) ) ) {
+				continue;
+			}
+
+			// original file
+			$original_file = $model->get_attribute($field);
+
+			// strip the extension
+			$ext = File::extension($original_file);
+			$basename = rtrim( $original_file, $ext );
+			$len = strlen($basename);
+
+			// iterate through the directory, looking for files that start with
+			// the basename
+
+			$iterator = new DirectoryIterator($directory);
+			foreach ($iterator as $file) {
+				if ($file->isFile() && strpos($file->getFilename(), $basename)===0) {
+
+					if ( !File::delete($file->getPathName()) ) {
+						throw new Thumbnailable_Exception("Could not delete ".$file->getPathName()."." );
+
+					}
+				}
+			}
+
+		}
+
+		return true;
+
+	}
+
+
+
+
+
+	/*
+	 * PRIVATE METHODS
+	 */
 
 
 
@@ -150,34 +243,34 @@ trait Thumbnailable {
 		}
 
 		foreach($sizes as $size) {
-			$this->thumbnail_generate($field, $size);
+			$this->thumbnail_resize_image( $field, $size, false );
 		}
 
 	}
 
 
-	private function thumbnail_generate($field, $size)
+
+	private function thumbnail_resize_image( $field, $size, $use_cache = true )
 	{
-		return $this->thumbnail_resize_image( $field, $size, false );
-	}
 
+		$original_file = $this->get_attribute($field);
 
-
-	private function thumbnail_resize_image( $field, $size, $from_cache = true )
-	{
+		// did we ask for the original?
+		if ($size=='original') {
+			return $original_file;
+		}
 
 		$format  = static::thumbnailable_config('thumbnail_format', $field );
 		$new_file = $this->thumbnail_filename( $field, $size, $format );
 
 		// if we already have a cached copy, return it
-		if ($from_cache && File::exists($new_file)) {
+		if ($use_cache && File::exists($new_file)) {
 			return $new_file;
 		}
 
-		$directory = static::thumbnailable_config('storage_dir', $field )
-		$original_file = $this->get_attribute($field);
-		if ( !File::exists($directoy.DS.$original_file) ) {
-			throw new Thumbnailable_Exception("Can not generate {$size} thumbnail for {$field}: no original.");
+		$directory = static::thumbnailable_config('storage_dir', $field );
+		if ( !File::exists($directory.DS.$original_file) ) {
+			throw new Thumbnailable_Exception("Can not generate $size thumbnail for $field: no original.");
 		}
 
 		$src_image = imagecreatefromstring( File::get($directory.DS.$original_file) );
@@ -243,7 +336,7 @@ trait Thumbnailable {
 				imagecopyresampled($dst_image, $src_image, 0, 0, $offset_x, 0, $dst_width, $dst_height, $width, $src_height);
 			} else {
 				// crop top and bottom sides
-				$height = $src_height / $dst_ratio;
+				$height = $src_width / $dst_ratio;
 				$offset_y = floor( ($src_height - $height) / 2);
 				imagecopyresampled($dst_image, $src_image, 0, 0, 0, $offset_y, $dst_width, $dst_height, $src_width, $height);
 			}
@@ -254,20 +347,23 @@ trait Thumbnailable {
 
 		switch ($format) {
 			case 'gif':
-				$success = imagegif($dst_image, $new_file);
+				$success = imagegif($dst_image, $directory.DS.$new_file);
 				break;
 			case 'jpg':
-				$success = imagejpeg($dst_image, $new_file, $quality);
+				$success = imagejpeg($dst_image, $directory.DS.$new_file, $quality);
 				break;
 			case 'png':
 				// map 0-100 quality to 9-0 compression
 				$quality = round( 9 * (1 - ($quality/100)) );
-				$success = imagepng($dst_image, $new_file, $quality);
+				$success = imagepng($dst_image, $directory.DS.$new_file, $quality);
 				break;
 		}
 
+		imagedestroy($src_image);
+		imagedestroy($dst_image);
+
 		if (!$success) {
-			throw new Thumbnailable_Exception("Could not generate thumbnail {$new_file}");
+			throw new Thumbnailable_Exception("Could not generate thumbnail $new_file.");
 		}
 
 		return $new_file;
@@ -300,8 +396,8 @@ trait Thumbnailable {
 	private static function thumbnail_newfile( $directory, $ext=null )
 	{
 		do {
-			$filename = $directory . DS . Str::random(24) . ($ext ? '.' . $ext : '');
-		} while ( File::exists( $filename ) );
+			$filename = Str::random(24) . ($ext ? '.' . $ext : '');
+		} while ( File::exists( $directory . DS . $filename ) );
 		return $filename;
 	}
 
