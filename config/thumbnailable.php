@@ -7,9 +7,6 @@ return array(
 	'storage_dir'   => path('storage'). 'uploads' . DS . 'thumbnails',
 
 
-	'path_method'   => 'get_%s_path',
-
-
 	// Should we keep the original uploaded file?
 	'keep_original' => true,
 
@@ -60,27 +57,38 @@ return array(
 	// The key of the array is the attribute name, the value is an array of key-value
 	// pairs that define settings for that particular field.
 	//
-	'fields'        => array(
 
-		'image' => array(
+	/* EXAMPLE
 
-			// sizes
-			// - An array where the key is the "nickname" for the format and the value is
-			//   a "(height)x(width)" dimension for the thumbnail.  A nickname of "default"
-			//   can define the default size to use when requesting a thumbnail
-			'sizes' => array(
-				'small'   => '50x50',
-				'medium'  => '100x100',
-				'large'   => '300x300',
-			),
+	'user' => array(
 
-			// what size to return if none is given
-			'default_size' => 'small',
+		'fields'        => array(
 
-			// other possible keys can override the base settings for this model, i.e.:
-			// - storage_dir
-			// - keep_original
+			// what image to return if none is given
+			'default_field' => 'image',
 
+			'image' => array(
+
+				// sizes
+				// - An array where the key is the "nickname" for the format and the value is
+				//   a "(height)x(width)" dimension for the thumbnail.
+				'sizes' => array(
+					'small'   => '50x50',
+					'medium'  => '100x100',
+					'large'   => '300x300',
+				),
+
+				// what size to return if none is given
+				'default_size' => 'small',
+
+				// other possible keys can override the base settings for this model, i.e.:
+				// - storage_dir
+				// - keep_original
+
+			)
 		)
+
 	)
+	*/
+
 );
