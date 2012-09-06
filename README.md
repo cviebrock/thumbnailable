@@ -53,6 +53,8 @@ class User extends Eloquent
 
 That's it ... your model is now "thumbnailable"!
 
+** Please see the [note](#note) if you are using a version of PHP prior to 5.4. **
+
 
 ## Using the Class
 
@@ -350,7 +352,7 @@ Because this bundles uses PHP traits, it will only work if you are running PHP 5
 
 If you are running PHP 5.3, you can still use the bundle, but you will need to define your
 models a bit differently: basically, copy the two trait methods from `thumbnailable.php`
-into your model, and skip the `use Thumbnailer` setting.  e.g.:
+into your model, and skip the `use Thumbnailable` setting.  e.g.:
 
 ```php
 class User extends Eloquent
