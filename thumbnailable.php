@@ -3,10 +3,10 @@
 /**
  * Easy thumbnailing for your Eloquent models.
  *
- * @package Eloquent-Thumbnailable
- * @version 0.2
+ * @package Thumbnailable
+ * @version 1.0
  * @author  Colin Viebrock <colin@viebrock.ca>
- * @link    http://github.com/cviebrock/eloquent-thumbnailable
+ * @link    http://github.com/cviebrock/thumbnailable
  */
 
 
