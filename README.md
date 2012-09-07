@@ -1,6 +1,6 @@
-# Eloquent-Thumbnailable
+# Thumbnailable
 
-Easy image handling in your Laravel models!
+Easy thumbnailing for your Eloquent models!
 
 
 
@@ -9,20 +9,20 @@ Easy image handling in your Laravel models!
 Install the bundle using Artisan:
 
 ```
-php artisan bundle::install eloquent-thumbnailable
+php artisan bundle::install thumbnailable
 ```
 
 Update your `application/bundles.php` file with:
 
 ```php
-'eloquent-thumbnailable' => array( 'auto' => true ),
+'thumbnailable' => array( 'auto' => true ),
 ```
 
 ## Updating your Models
 
-For PHP 5.4 users, you simple need to include the Thumbnailable trait
-in your model, and define the configuration for your model in a public
-static property `$thumbnailable`.
+For PHP 5.4 users, you simple need to include the Thumbnailable trait in your
+model, and define the configuration for your model in a  public static
+property `$thumbnailable`.
 
 ```php
 class User extends Eloquent
@@ -54,7 +54,8 @@ class User extends Eloquent
 
 That's it ... your model is now "thumbnailable"!
 
-** Please see the [note](#note) if you are using a version of PHP prior to 5.4. **
+** Please see the [note](#note) if you are using a version of PHP prior to
+5.4. **
 
 
 ## Using the Class
@@ -89,76 +90,81 @@ And when you're all done, deleting is a piece of cake too:
 $user->delete();
 ```
 
-The bundle will automatically delete the original uploaded file and
-all thumbnails associated with it.
+The bundle will automatically delete the original uploaded file and all
+thumbnails associated with it.
 
 
 ## Global Configuration
 
-Configuration was designed to be as flexible as possible.  You can set up
-defaults for all of your Eloquent models, defaults for all the image fields
-within a model, or even override those settings for individual images.
+Configuration was designed to be as flexible as possible.  You can  set up
+defaults for all of your Eloquent models, defaults for all the  image fields
+within a model, or even override those settings for  individual images.
 
-By default, global configuration can be set in the `application/config/thumbnailable.php`
-file.  If a configuration isn't set, then the bundle defaults from
-`bundles/eloquent-thumbnailable/config/thumbnailable.php` are used.
-Here is an example configuration, with all the settings shown:
+By default, global configuration can be set in the
+`application/config/thumbnailable.php` file.  If a configuration isn't set,
+then the bundle defaults from `bundles/thumbnailable/config/thumbnailable.php`
+are used.  Here is an example configuration, with all the settings shown:
 
 ```php
 return array(
 
-	'storage_dir'          => path('storage'). 'uploads' . DS . 'thumbnails',
-	'keep_original'        => true,
-	'strict_sizes'         => true,
-	'on_save'              => true,
-	'resize_method'        => 'crop',
-	'thumbnail_format'     => 'png',
-	'thumbnail_quality'    => 80,
-	'thumbnail_background' => array( 255, 255, 255),
+	'storage_dir'       => path('storage'). 'uploads' . DS . 'thumbnails',
+	'keep_original'     => true,
+	'strict_sizes'      => true,
+	'on_save'           => true,
+	'resize_method'     => 'crop',
+	'thumbnail_format'  => 'png',
+	'thumbnail_quality' => 80,
 
 );
 ```
 
-`storage_dir` is the directory where the images and generated thumbnails are stored.
-The directory needs to be writable by the webserver (but the bundle will do its
-best to create any missing directories for you).
+`storage_dir` is the directory where the images and generated thumbnails are
+stored. The directory needs to be writable by the webserver (but the bundle
+will do its best to create any missing directories for you).
 
-`keep_original` is a boolean that determines whether to keep the original (un-thumbnailed)
-image file after processing.  Maybe you really only need thumbnails, so save storage space
-by discarding the original.
+`keep_original` is a boolean that determines whether to keep the original (un-
+thumbnailed) image file after processing.  Maybe you really only need
+thumbnails, so save storage space by discarding the original.
 
-`strict_sizes` is a boolean.  If it's set to true, then you can only generate and access
-thumbnails of the pre-determined sizes (defined later on in the configuration).  If it's
-set to false, then you can generate thumbnails of any size at any time.
+`strict_sizes` is a boolean.  If it's set to true, then you can only generate
+and access thumbnails of the pre-determined sizes (defined later on in the
+configuration).  If it's set to false, then you can generate thumbnails of any
+size at any time.
 
 `on_save` is a boolean.  If true, then saving your Eloquent model will trigger
-thumbnail generation of all the pre-determined sizes.  This way, you will have instant
-access to the resized images.  If false, then thumbnails are only generated when they
-are requested (you must set `keep_original` to true in this case).
+thumbnail generation of all the pre-determined sizes.  This way, you will have
+instant access to the resized images.  If false, then thumbnails are only
+generated when they are requested (you must set `keep_original` to true in
+this case).
 
-`resize_method` is one of the strings "exact", "portrait", "landscape", "auto", "fit" or "crop".
-These are passed to the Resizer class.
+`resize_method` is one of the strings "exact", "portrait", "landscape",
+"auto", "fit" or "crop". These are passed to the Resizer class.
 
-* "crop" will resize your image so that it completely fills the thumbnail, but maintains the original image's aspect ratio.
-* "fit" will resize the image so that it fits inside the thumbnail (padding it, if necessary)
-* "exact" simply resizes the original image to the dimensions of the thumbnail with no regard for aspect ratios.
+* "crop" will resize your image so that it completely fills the thumbnail, but
+  maintains the original image's aspect ratio.
 
-The remaingin options of "portrait", "landscape" and "auto" can produce images larger
-than the dimensions you give, so their use is discourage.
+* "fit" will resize the image so that it fits inside the thumbnail (padding
+  it, if necessary)
 
-`thumbnail_format` is one of "png", "jpg" or "gif" and determines what the final image
-format of the thumbnails should be.
+* "exact" simply resizes the original image to the dimensions of the thumbnail
+  with no regard for aspect ratios.
 
-`thumbnail_quality` is an integer from 0 to 100 and determines (for PNG and JPG images)
-the quality or compression of the thumbnail (0 is lowest quality/highest compression,
-100 is best quality/no compression).
+The remaining options of "portrait", "landscape" and "auto" can produce images
+larger than the dimensions you give, so their use is discourage.
+
+`thumbnail_format` is one of "png", "jpg" or "gif" and determines what the
+final image format of the thumbnails should be.
+
+`thumbnail_quality` is an integer from 0 to 100 and determines (for PNG and
+JPG images) the quality or compression of the thumbnail (0 is lowest
+quality/highest compression, 100 is best quality/no compression).
 
 
 ## Model Configuration
 
-The configuration for each model that uses the bundle is done in the model itself.
-
-Let's look at our User class again:
+The configuration for each model that uses the bundle is done in the model
+itself.  Let's look at our User class again:
 
 ```php
 class User extends Eloquent
@@ -189,10 +195,11 @@ class User extends Eloquent
 }
 ```
 
-`fields` is an array of which attributes in the model (or fields in the database)
-represent the images to be thumbnailed.  Looking at our User model, we have thumbnail images
-for "headshot" and "bodyshot".  When generating your database, these should be string
-fields (since they will store the path to the images), e.g.
+`fields` is an array of which attributes in the model (or fields in the
+database) represent the images to be thumbnailed.  Looking at our User model,
+we have thumbnail images for "headshot" and "bodyshot".  When generating your
+database, these should be string fields (since they will store the path to the
+images), e.g.:
 
 ```php
 Schema::create('users', function($table)
@@ -205,46 +212,49 @@ Schema::create('users', function($table)
 });
 ```
 
-Within each element of `fields` array is where we define what thumbnail sizes to generate,
-and what friendly names to give them.  For our User->headshot field, we are generating
-50x50, 100x100 and 200x200 thumbnails.  We can access the small one this way:
+Within each element of `fields` array is where we define what thumbnail sizes
+to generate, and what friendly names to give them.  For our User->headshot
+field, we are generating 50x50, 100x100 and 200x200 thumbnails.  We can access
+the small one this way:
 
 ```php
 $user->thumbnail('headshot','50x50');
 ```
 
-But what happens if you decide that 50x50 is too big and you really need to change those
-dimensions?  It would be a pain to search your entire application for instances of that,
-so you can (and should!) refer to the image size by name (i.e. the key in that array):
+But what happens if you decide that 50x50 is too big and you really need to
+change those dimensions?  It would be a pain to search your entire application
+for instances of that, so you can (and should!) refer to the image size by
+name (i.e. the key in that array):
 
 ```php
 $user->thumbnail('headshot','small');
 ```
 
-We make it easier as well: you can define a `default_size` for a particular field, so the
-following code will also return the small thumbnail image:
+We make it easier as well: you can define a `default_size` for a particular
+field, so the following code will also return the small thumbnail image:
 
 ```php
 $user->thumbnail('headshot');
 ```
 
-Still too much typing?  There is a `default_field` configuration for the model.  So this
-code will also return the small headshot file:
+Still too much typing?  There is a `default_field` configuration for the
+model.  So this code will also return the small headshot file:
 
 ```php
 $user->thumbail();
 ```
 
-Our model has a "bodyshot" field as well (maybe a secondary photo the users upload).
-We have set `strict_sizes` to false and not given any predetermined sizes.  This means you can
-request any size thumbnail for that field, although you need to do it explicitly:
+Our model has a "bodyshot" field as well (maybe a secondary photo the users
+upload). We have set `strict_sizes` to false and not given any predetermined
+sizes.  This means you can request any size thumbnail for that field, although
+you need to do it explicitly:
 
 ```php
 $user->thumbnail('bodyshot', '200x100');
 ```
 
-And of the global configuration values can be redefined on a model-by-model -- or
-even field-by-field -- case.
+And all of the global configuration values can be redefined on a model-by-
+model -- or even field-by-field -- case.
 
 Let's take a quick look at an other example model:
 
@@ -268,10 +278,10 @@ class Dog extends Eloquent
 }
 ```
 
-In this case, we aren't keeping the original image, so any file that is uploaded is
-thumbnailed to 50x50 (since the global `on_save` is true).  We also only have one field
-with one size, so we don't need to define a `default_field` or `default_size`.
-All of the following lines of code will return the same thing:
+Here, we aren't keeping the original image, so any file that is uploaded is
+thumbnailed to 50x50 (since the global `on_save` is true).  We also only have
+one field with one size, so we don't need to define a `default_field` or
+`default_size`. All of the following lines of code will return the same thing:
 
 ```php
 $dog->thumbnail('image','50x50');
@@ -290,14 +300,13 @@ Another option for configuring your models is to handle it all in the
 ```php
 return array(
 
-	'storage_dir'          => path('storage'). 'uploads' . DS . 'thumbnails',
-	'keep_original'        => true,
-	'strict_sizes'         => true,
-	'on_save'              => true,
-	'resize_method'        => 'crop',
-	'thumbnail_format'     => 'png',
-	'thumbnail_quality'    => 80,
-	'thumbnail_background' => array( 255, 255, 255),
+	'storage_dir'       => path('storage'). 'uploads' . DS . 'thumbnails',
+	'keep_original'     => true,
+	'strict_sizes'      => true,
+	'on_save'           => true,
+	'resize_method'     => 'crop',
+	'thumbnail_format'  => 'png',
+	'thumbnail_quality' => 80,
 
 	'user' => array(
 		'default_field' => 'headshot',
@@ -330,30 +339,32 @@ return array(
 );
 ```
 
-This puts all the configuration for your application in one place, which might be
-your preference.
+This puts all the configuration for your application in one place, which might
+be your preference.
 
 
 ## Credits
 
 The idea for this bundle came from using Symfony's
-[sfDoctrineThumbnailablePlugin](https://github.com/ubermuda/sfDoctrineThumbnailablePlugin) ...
-back when I built sites with Symfony.  It was a quick and "automagic" way to get image
-thumbnailing built into my Symfony Doctrine models.  I tried to keep the configuration
-for the Eloquent-Thumbnailable bundle fairly similar to the SF plugin, but the bundle's code
-is from scratch.
+[sfDoctrineThumbnailablePlugin](https://github.com/ubermuda/sfDoctrineThumbnailablePlugin)
+... back when I built sites with Symfony.  It was a quick and "automagic" way
+to get image thumbnailing built into my Symfony Doctrine models.  I tried to
+keep the configuration for the Thumbnailable bundle fairly similar to the SF
+plugin, but the bundle's code is from scratch.
 
-The bundle utilizes [Resizer](http://bundles.laravel.com/bundle/resizer).  Artisan should
-handle the dependency for you.
+The bundle depends on having the [Resizer](http://bundles.laravel.com/bundle/resizer)
+bundle installed.  Artisan should handle the dependency for you.
 
 
 ## NOTE
 
-Because this bundles uses PHP traits, it will only work if you are running PHP 5.4.
+Because this bundles uses PHP traits, it will only work if you are running PHP
+5.4.
 
-If you are running PHP 5.3, you can still use the bundle, but you will need to define your
-models a bit differently: basically, copy the two trait methods from `thumbnailable.php`
-into your model, and skip the `use Thumbnailable` setting.  e.g.:
+If you are running PHP 5.3, you can still use the bundle, but you will need to
+define your models a bit differently: basically, copy the two trait methods
+from `thumbnailable.php` into your model, and skip the `use Thumbnailable`
+setting.  e.g.:
 
 ```php
 class User extends Eloquent
@@ -370,7 +381,7 @@ class User extends Eloquent
 	}
 
 	public static $thumbnailable = array(
-		...
+		// your regular config settings
 	);
 
 }
