@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Easy thumbnailing for your Eloquent models.
+ *
+ * @package Thumbnailable
+ * @version 1.0.1
+ * @author  Colin Viebrock <colin@viebrock.ca>
+ * @link    http://github.com/cviebrock/thumbnailable
+ */
+
+
 Autoloader::map(array(
 	'Thumbnailable' => __DIR__ . DS . 'thumbnailable.php',
 	'Thumbnailer'   => __DIR__ . DS . 'thumbnailer.php'
