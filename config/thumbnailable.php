@@ -49,12 +49,12 @@ return array(
 	/**
 	 *  Image format for thumbnailed images: one of "jpg", "png" or "gif".
 	 */
-	'thumbnail_format' => 'png',
+	'thumbnail_format' => 'jpg',
 
 
 	/**
 	 *  Image quality for thumbnails: 0-100.  Irrelevant if format is "gif"
 	 */
-	'thumbnail_quality' => 80,
+	'thumbnail_quality' => 75,
 
 );
