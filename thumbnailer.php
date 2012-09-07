@@ -51,7 +51,7 @@ class Thumbnailer {
 
 		// 2. app_config.KEY
 
-		$value = Config::get( "thumbnailable.$key", null ) );
+		$value = Config::get( "thumbnailable.$key", null );
 		if ( !is_null( $value ) ) return $value;
 
 
