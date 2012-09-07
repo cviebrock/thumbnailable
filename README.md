@@ -20,8 +20,9 @@ Update your `application/bundles.php` file with:
 
 ## Updating your Models
 
-You need to include the Thumbnailable trait in your model, and define the configuration
-for your model in a public static property `$thumbnailable`.
+For PHP 5.4 users, you simple need to include the Thumbnailable trait
+in your model, and define the configuration for your model in a public
+static property `$thumbnailable`.
 
 ```php
 class User extends Eloquent
