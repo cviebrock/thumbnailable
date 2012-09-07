@@ -3,10 +3,10 @@
 /**
  * Easy thumbnailing for your Eloquent models.
  *
- * @package Eloquent-Thumbnailable
- * @version 0.2
+ * @package Thumbnailable
+ * @version 1.0
  * @author  Colin Viebrock <colin@viebrock.ca>
- * @link    http://github.com/cviebrock/eloquent-thumbnailable
+ * @link    http://github.com/cviebrock/thumbnailable
  */
 
 
@@ -20,11 +20,8 @@ class Thumbnailer {
 	 *
 	 * 1a. model_config.fields.FIELD.KEY
 	 * 1b. model_config.KEY
-	 * 2a. app_config.MODEL.fields.FIELD.KEY
-	 * 2b. app_config.MODEL.KEY
-	 * 2c. app_config.KEY
-	 * 3a. default_config.KEY
-	 * 4.  default value
+	 * 2. app_config.KEY
+	 * 3. default_config.KEY
 	 *
 	 * @param  Model   &$model
 	 * @param  string  $key
@@ -34,15 +31,6 @@ class Thumbnailer {
 	 */
 	private static function config( &$model, $key, $field=null, $default=null )
 	{
-		// In order of preference, we look in
-		//
-		// 1a. model_config.fields.FIELD.KEY
-		// 1b. model_config.KEY
-		// 2a. app_config.MODEL.fields.FIELD.KEY
-		// 2b. app_config.MODEL.KEY
-		// 2c. app_config.KEY
-		// 3a. default_config.KEY
-		// 4.  default value
 
 		// 1. check the model
 		if ( isset( $model::$thumbnailable ) ) {
@@ -61,31 +49,15 @@ class Thumbnailer {
 		}
 
 
-		// 2. check the application
+		// 2. app_config.KEY
 
-		if ( $config = Config::get( 'thumbnailable' ) ) {
+		$value = Config::get( "thumbnailable.$key", null ) );
+		if ( !is_null( $value ) ) return $value;
 
-			$class = Str::lower( get_class( $model ) );
-
-			// app_config.MODEL.fields.KEY
-			if ( $field ) {
-				$value = array_get( $config, "$class.fields.$field.$key", null );
-				if ( !is_null( $value ) ) return $value;
-			}
-
-			// app_config.MODEL.KEY
-			$value = array_get( $config, "$class.$key", null );
-			if ( !is_null( $value ) ) return $value;
-
-			// app_config.KEY
-			$value = array_get( $config, $key, null );
-			if ( !is_null( $value ) ) return $value;
-
-		}
 
 		// default_config.KEY
 
-		return Config::get( "eloquent-thumbnailable::thumbnailable.$key", $default );
+		return Config::get( "thumbnailable::thumbnailable.$key", $default );
 
 	}
 
