@@ -32,6 +32,7 @@ class Thumbnailer {
 	private static function config( &$model, $key, $field=null, $default=null )
 	{
 
+
 		// 1. check the model
 		if ( isset( $model::$thumbnailable ) ) {
 
@@ -72,12 +73,17 @@ class Thumbnailer {
 	public static function saving( $model )
 	{
 
-		$class = get_class($model);
+		// skip if the model isn't thumbnailable
+		if ( !isset( $model::$thumbnailable ) ) {
+			return true;
+		}
 
 		// check that the model has fields configured for thumbnailing
 		if ( !( $fields = static::config( $model, 'fields' ) ) ) {
 			throw new \Exception("No fields configured for thumbnailing.");
 		}
+
+		$class = get_class($model);
 
 		// loop through each field to thumbnail
 		foreach( $fields as $field=>$info ) {
@@ -208,6 +214,7 @@ class Thumbnailer {
 	 */
 	public static function get( &$model, $field=null, $size=null )
 	{
+
 
 		// Find default field, if it's not given
 		$field = $field ?: Thumbnailer::config( $model, 'default_field' );
