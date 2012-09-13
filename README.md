@@ -340,7 +340,18 @@ return array(
 ```
 
 This puts all the configuration for your application in one place, which might
-be your preference.
+be your preference.  In this case, you still need to define that a model is
+thumbnailable with the static property like so:
+
+```php
+class User extends Eloquent {
+
+	use Thumbnailable;
+
+	public static $thumbnailable = array();
+
+}
+```
 
 
 ## Credits
