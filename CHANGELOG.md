@@ -29,3 +29,8 @@
 
 - fix typo (was too eager to release)
 - change default `thumbnail_format` config to "jpg"
+
+
+### Version 1.1 -- 12-Sep-2012
+
+- fix issue where all models are assumed to be thumbnailable
