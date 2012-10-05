@@ -181,7 +181,8 @@ class User extends Eloquent
 					'small'  => '50x50',
 					'medium' => '100x100',
 					'large'  => '200x200',
-				)
+				),
+				'save_filename' => 'headshot_file'
 			),
 			'bodyshot' => array(
 				'strict_sizes' => false,
@@ -207,6 +208,7 @@ Schema::create('users', function($table)
 	$table->increments('id');
 	$table->string('name');
 	$table->string('headshot');
+	$table->string('headshot_file');
 	$table->string('bodyshot');
 	$table->timestamps();
 });
@@ -244,6 +246,14 @@ model.  So this code will also return the small headshot file:
 $user->thumbail();
 ```
 
+The headshot field also has a configuration setting for `save_filename`.
+If this is set, then the original name of the uploaded file is stored in this
+attribute of the model (i.e. field in the database).  So in this case, the
+name of our uploaded headshot image (e.g. "colin.jpg") is stored in
+`$user->headshot_file`.  This is useful if, for example, you want to allow
+users to redownload the file but want to rename it back to the original filename
+using, perhaps using `Response::download()`.
+
 Our model has a "bodyshot" field as well (maybe a secondary photo the users
 upload). We have set `strict_sizes` to false and not given any predetermined
 sizes.  This means you can request any size thumbnail for that field, although
@@ -252,6 +262,8 @@ you need to do it explicitly:
 ```php
 $user->thumbnail('bodyshot', '200x100');
 ```
+Also note that `save_filename` isn't set for the "bodyshot" field, so we
+aren't keeping the name of the uploaded file in this case.
 
 And all of the global configuration values can be redefined on a model-by-
 model -- or even field-by-field -- case.

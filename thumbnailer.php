@@ -131,6 +131,11 @@ class Thumbnailer {
 				// update the eloquent model with the filename
 				$model->set_attribute( $field, $newfile );
 
+				// if we are to save the original file name in a model attribute,
+				// do that as well
+				if ( $original = static::config( $model, 'save_filename', $field ) ) {
+					$model->set_attribute( $original, $array['name'] );
+				}
 
 				// if the thumbs are to be generated on save, do it
 				if ( static::config( $model, 'on_save', $field ) ) {
