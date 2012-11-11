@@ -365,6 +365,54 @@ class User extends Eloquent {
 }
 ```
 
+## Per-model Storage Directories
+
+Because PHP only allows static properties to be assigned simple values,
+you unfortunately can't do this:
+
+```php
+class Dog extends Eloquent
+{
+
+	use Thumbnailable;
+
+	public static $thumbnailable = array(
+		'storage_dir' => path('storage'). 'uploads' . DS . 'dog_pics',
+			...
+	);
+
+}
+```
+
+The two ways to define a different directory for each model are:
+
+1. Use the [Out-of-Model Configuration], or
+2. Define it in the constructor of your model, i.e.
+
+
+```php
+class Dog extends Eloquent
+{
+
+	use Thumbnailable;
+
+	public static $thumbnailable = array(
+		/* all your normal settings */
+	);
+
+
+	public function __construct($attributes = array(), $exists = false)
+	{
+
+		self::$thumbnailable['storage_dir'] = path('storage'). 'uploads' . DS . 'dog_pics';
+
+		parent::__construct($attribues, $exists);
+
+	}
+
+}
+```
+
 
 ## Credits
 
