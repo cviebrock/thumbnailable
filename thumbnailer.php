@@ -128,14 +128,8 @@ class Thumbnailer {
 					throw new \Exception("Could not move uploaded file to $directory" . DS . "$newfile.");
 				}
 
-				// erase any old images first, if they existed
-				if ( $model->changed($field) ) {
-					$this->clean_field( $model, $field);
-				}
-
 				// update the eloquent model with the new filename
 				$model->set_attribute( $field, $newfile );
-
 
 				// if we are to save the original file name in a model attribute,
 				// do that as well
@@ -187,15 +181,43 @@ class Thumbnailer {
 
 	}
 
+
+	/**
+	 * Method that gets fired when the eloquent model is updated.
+	 * Erases the previous files and any generated thumbnails
+	 *
+	 * @param  Model   $model
+	 * @return bool
+	 */
+	public static function updated( $model )
+	{
+
+		// check that the model has fields configured for thumbnailing
+		if ( !( $fields = static::config( $model, 'fields' ) ) ) {
+			return true;
+		}
+
+		// loop through each field to thumbnail and clear the old images
+		foreach( $fields as $field=>$info ) {
+			$this->clean_field( $model, $field, false );
+		}
+
+		return true;
+
+	}
+
 	/**
 	 * Erases the original file and any generated thumbnails for a given
 	 * model and field.
 	 *
 	 * @param  Model   $model
 	 * @param  string  $field
+	 * @param  bool    $current  Whether to erase the current files
+	 *                 (based on the filename in $model->attributes) or old files
+	 *                 (based on the filename in $model->original)
 	 * @return bool
 	 */
-	protected static function clean_field( $model, $field )
+	protected static function clean_field( $model, $field, $current=true )
 	{
 
 		// find the storage directory
@@ -204,7 +226,7 @@ class Thumbnailer {
 		}
 
 		// original file
-		$original_file = $model->get_attribute($field);
+		$original_file = $current ? $model->get_attribute($field) : $model->get_original($field);
 
 		// strip the extension
 		$ext = File::extension($original_file);
