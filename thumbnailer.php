@@ -174,7 +174,7 @@ class Thumbnailer {
 
 		// loop through each field to thumbnail and clear the old images
 		foreach( $fields as $field=>$info ) {
-			$this->clean_field( $model, $field );
+            static::clean_field( $model, $field );
 		}
 
 		return true;
@@ -199,7 +199,7 @@ class Thumbnailer {
 
 		// loop through each field to thumbnail and clear the old images
 		foreach( $fields as $field=>$info ) {
-			$this->clean_field( $model, $field, false );
+            static::clean_field( $model, $field, false );
 		}
 
 		return true;
@@ -226,7 +226,7 @@ class Thumbnailer {
 		}
 
 		// original file
-		$original_file = $current ? $model->get_attribute($field) : $model->get_original($field);
+		$original_file = $current ? $model->get_attribute($field) : array_get($model->original, $field);
 
 		// strip the extension
 		$ext = File::extension($original_file);
