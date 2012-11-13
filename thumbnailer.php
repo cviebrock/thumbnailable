@@ -225,6 +225,11 @@ class Thumbnailer {
 			return true;
 		}
 
+		if(!$model->changed($field))
+		{
+			return true;
+		}
+
 		// original file
 		$original_file = $current ? $model->get_attribute($field) : array_get($model->original, $field);
 
