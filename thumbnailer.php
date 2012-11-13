@@ -4,7 +4,7 @@
  * Easy thumbnailing for your Eloquent models.
  *
  * @package Thumbnailable
- * @version 1.1
+ * @version 1.2
  * @author  Colin Viebrock <colin@viebrock.ca>
  * @link    http://github.com/cviebrock/thumbnailable
  */
@@ -128,9 +128,14 @@ class Thumbnailer {
 					throw new \Exception("Could not move uploaded file to $directory" . DS . "$newfile.");
 				}
 
-				// update the eloquent model with the filename
+				// update the eloquent model with the new filename
 				$model->set_attribute( $field, $newfile );
 
+				// if we are to save the original file name in a model attribute,
+				// do that as well
+				if ( $original = static::config( $model, 'save_filename', $field ) ) {
+					$model->set_attribute( $original, $array['name'] );
+				}
 
 				// if the thumbs are to be generated on save, do it
 				if ( static::config( $model, 'on_save', $field ) ) {
@@ -167,42 +172,93 @@ class Thumbnailer {
 		}
 
 
-		// loop through each field to thumbnail
+		// loop through each field to thumbnail and clear the old images
 		foreach( $fields as $field=>$info ) {
-
-			// find the storage directory
-			if ( !( $directory = static::config( $model, 'storage_dir', $field ) ) ) {
-				continue;
-			}
-
-			// original file
-			$original_file = $model->get_attribute($field);
-
-			// strip the extension
-			$ext = File::extension($original_file);
-			$basename = rtrim( $original_file, $ext );
-			$len = strlen($basename);
-
-			// iterate through the directory, looking for files that start with
-			// the basename
-
-			$iterator = new DirectoryIterator($directory);
-			foreach( $iterator as $file ) {
-				if ($file->isFile() && strpos( $file->getFilename(), $basename )===0 ) {
-
-					if ( !File::delete( $file->getPathName() ) ) {
-						throw new \Exception("Could not delete ".$file->getPathName()."." );
-
-					}
-				}
-			}
-
+			static::clean_field( $model, $field );
 		}
 
 		return true;
 
 	}
 
+
+	/**
+	 * Method that gets fired when the eloquent model is updated.
+	 * Erases the previous files and any generated thumbnails
+	 *
+	 * @param  Model   $model
+	 * @return bool
+	 */
+	public static function updated( $model )
+	{
+
+		// check that the model has fields configured for thumbnailing
+		if ( !( $fields = static::config( $model, 'fields' ) ) ) {
+			return true;
+		}
+
+		// loop through each field to thumbnail and clear the old images
+		foreach( $fields as $field=>$info ) {
+			static::clean_field( $model, $field, false );
+		}
+
+		return true;
+
+	}
+
+	/**
+	 * Erases the original file and any generated thumbnails for a given
+	 * model and field.
+	 *
+	 * @param  Model   $model
+	 * @param  string  $field
+	 * @param  bool    $current  Whether to erase the current files
+	 *                 (based on the filename in $model->attributes) or old files
+	 *                 (based on the filename in $model->original)
+	 * @return bool
+	 */
+	protected static function clean_field( $model, $field, $current=true )
+	{
+
+		// find the storage directory
+		if ( !( $directory = static::config( $model, 'storage_dir', $field ) ) ) {
+			return true;
+		}
+
+		if( !$model->changed($field) ) {
+			return true;
+		}
+
+		// original file
+		$original_file = $current ? $model->get_attribute($field) : array_get($model->original, $field);
+
+		// if empty file, don't do anything
+		if( empty($original_file) ) {
+			return true;
+		}
+
+		// strip the extension
+		$ext = File::extension($original_file);
+		$basename = rtrim( $original_file, $ext );
+		$len = strlen($basename);
+
+		// iterate through the directory, looking for files that start with
+		// the basename
+
+		$iterator = new DirectoryIterator($directory);
+		foreach( $iterator as $file ) {
+			if ($file->isFile() && strpos( $file->getFilename(), $basename )===0 ) {
+
+				if ( !File::delete( $file->getPathName() ) ) {
+					throw new \Exception("Could not delete ".$file->getPathName()."." );
+				}
+
+			}
+		}
+
+		return true;
+
+	}
 
 	/**
 	 * Get the filename of a resized image, generating it if required
