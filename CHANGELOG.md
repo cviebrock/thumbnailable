@@ -34,3 +34,8 @@
 ### Version 1.1 -- 12-Sep-2012
 
 - fix issue where all models are assumed to be thumbnailable
+
+
+### Version 1.2 -- 13-Nov-20212
+
+- old thumbnails are now removed when a model is updated with a new image (thanks @markwu)

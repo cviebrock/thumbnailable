@@ -4,7 +4,7 @@
  * Easy thumbnailing for your Eloquent models.
  *
  * @package Thumbnailable
- * @version 1.1
+ * @version 1.2
  * @author  Colin Viebrock <colin@viebrock.ca>
  * @link    http://github.com/cviebrock/thumbnailable
  */
@@ -225,8 +225,7 @@ class Thumbnailer {
 			return true;
 		}
 
-		if(!$model->changed($field))
-		{
+		if( !$model->changed($field) ) {
 			return true;
 		}
 
@@ -234,7 +233,7 @@ class Thumbnailer {
 		$original_file = $current ? $model->get_attribute($field) : array_get($model->original, $field);
 
 		// if empty file, don't do anything
-		if(empty($original_file)) {
+		if( empty($original_file) ) {
 			return true;
 		}
 
