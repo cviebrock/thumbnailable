@@ -4,7 +4,7 @@
  * Easy thumbnailing for your Eloquent models.
  *
  * @package Thumbnailable
- * @version 1.1
+ * @version 1.2
  * @author  Colin Viebrock <colin@viebrock.ca>
  * @link    http://github.com/cviebrock/thumbnailable
  */
@@ -225,8 +225,7 @@ class Thumbnailer {
 			return true;
 		}
 
-		if(!$model->changed($field))
-		{
+		if( !$model->changed($field) ) {
 			return true;
 		}
 
@@ -234,7 +233,7 @@ class Thumbnailer {
 		$original_file = $current ? $model->get_attribute($field) : array_get($model->original, $field);
 
 		// if empty file, don't do anything
-		if(empty($original_file)) {
+		if( empty($original_file) ) {
 			return true;
 		}
 
@@ -384,11 +383,16 @@ class Thumbnailer {
 		}
 
 		$directory = static::config( $model, 'storage_dir', $field );
-		$format    = static::config( $model, 'thumbnail_format', $field );
+        $format    = static::config( $model, 'thumbnail_format', $field );
 
-		$new_file = rtrim( $original_file, File::extension( $original_file ) ) .
-			Str::lower($size) . '.' . $format;
-
+        if ( $format == 'auto' ) {
+            $ext = File::extension( $original_file );
+            $new_file = rtrim( $original_file, $ext ) .
+                Str::lower($size) . '.' . $ext;
+        } else {
+            $new_file = rtrim( $original_file, File::extension( $original_file ) ) .
+                Str::lower($size) . '.' . $format;
+        }
 
 		// if we already have a cached copy, return it
 		if ( $use_cache && File::exists( $directory . DS . $new_file ) ) {
