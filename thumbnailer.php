@@ -4,7 +4,7 @@
  * Easy thumbnailing for your Eloquent models.
  *
  * @package Thumbnailable
- * @version 1.2
+ * @version 1.3
  * @author  Colin Viebrock <colin@viebrock.ca>
  * @link    http://github.com/cviebrock/thumbnailable
  */
@@ -336,6 +336,21 @@ class Thumbnailer {
 	{
 		$directory = static::config( $model, 'storage_dir', $field );
 		return $directory . DS . static::get( $model, $field, $size );
+	}
+
+
+	/**
+	 * Get the URL of a resized image
+	 *
+	 * @param  Model   &$model
+	 * @param  string  $field
+	 * @param  string  $size
+	 * @return string
+	 */
+	public static function get_url( &$model, $field=null, $size=null )
+	{
+		$base_url = static::config( $model, 'base_url', $field );
+		return $base_url . DS . static::get( $model, $field, $size );
 	}
 
 
