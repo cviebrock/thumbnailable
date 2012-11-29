@@ -52,12 +52,13 @@ return array(
 	 *           (padding it, if necessary) and maintains the aspect ratio.
 	 * "exact" - simply resizes the original image to the dimensions of the
 	 *           thumbnail with no regard for aspect ratio.
- 	 */
+	 */
 	'resize_method' => 'crop',
 
 
 	/**
 	 *  Image format for thumbnailed images: one of "jpg", "png" or "gif".
+	 *  Set to "auto" will follow original file's extension.
 	 */
 	'thumbnail_format' => 'jpg',
 
