@@ -383,16 +383,13 @@ class Thumbnailer {
 		}
 
 		$directory = static::config( $model, 'storage_dir', $field );
-        $format    = static::config( $model, 'thumbnail_format', $field );
+		$format    = static::config( $model, 'thumbnail_format', $field );
 
-        if ( $format == 'auto' ) {
-            $ext = File::extension( $original_file );
-            $new_file = rtrim( $original_file, $ext ) .
-                Str::lower($size) . '.' . $ext;
-        } else {
-            $new_file = rtrim( $original_file, File::extension( $original_file ) ) .
-                Str::lower($size) . '.' . $format;
-        }
+		if ( $format == 'auto' ) {
+			$format = File::extension( $original_file );
+		}
+		$new_file = rtrim( $original_file, File::extension( $original_file ) ) .
+			Str::lower($size) . '.' . $format;
 
 		// if we already have a cached copy, return it
 		if ( $use_cache && File::exists( $directory . DS . $new_file ) ) {
