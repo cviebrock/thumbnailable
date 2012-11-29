@@ -82,6 +82,16 @@ $user->thumbnail('headshot', 'small');
 
 // return the path to a custom-sized thumbnail
 $user->thumbnail('headshot', '75x75');
+
+
+// in your views
+{{ HTML::image( $user->thumbnail_url('headshot') ) }}
+
+// or use the easy helper
+{{ $user->thumbnail_image('headshot', 'small', 'Colin', array('class'=>'headshot') ) }}
+{{ $user->thumbnail_image('headshot', '75x75' ) }}
+{{ $user->thumbnail_image() }}
+
 ```
 
 And when you're all done, deleting is a piece of cake too:
@@ -109,6 +119,7 @@ are used.  Here is an example configuration, with all the settings shown:
 return array(
 
 	'storage_dir'       => path('storage'). 'uploads' . DS . 'thumbnails',
+	'base_url'          => '/img/thumbnails'
 	'keep_original'     => true,
 	'strict_sizes'      => true,
 	'on_save'           => true,
@@ -122,6 +133,11 @@ return array(
 `storage_dir` is the directory where the images and generated thumbnails are
 stored. The directory needs to be writable by the webserver (but the bundle
 will do its best to create any missing directories for you).
+
+`base_url` defines how you can publically access your generated thumbnails.
+Generally, this would be a symlink you create in your application's public folder
+that links to the `storage_dir`, although you could set it to anything depending on
+your particular setup.
 
 `keep_original` is a boolean that determines whether to keep the original (un-
 thumbnailed) image file after processing.  Maybe you really only need
@@ -154,7 +170,8 @@ The remaining options of "portrait", "landscape" and "auto" can produce images
 larger than the dimensions you give, so their use is discourage.
 
 `thumbnail_format` is one of "png", "jpg" or "gif" and determines what the
-final image format of the thumbnails should be.
+final image format of the thumbnails should be.  Set it to "auto" and your thumbnails
+will be same image type as the original images.
 
 `thumbnail_quality` is an integer from 0 to 100 and determines (for PNG and
 JPG images) the quality or compression of the thumbnail (0 is lowest
@@ -426,6 +443,7 @@ plugin, but the bundle's code is from scratch.
 The bundle depends on having the [Resizer](http://bundles.laravel.com/bundle/resizer)
 bundle installed.  Artisan should handle the dependency for you.
 
+And thanks to all the Github users who've give suggestions or (especially) merge requests.
 
 ## NOTE
 

@@ -4,7 +4,7 @@
  * Easy thumbnailing for your Eloquent models.
  *
  * @package Thumbnailable
- * @version 1.2
+ * @version 1.3
  * @author  Colin Viebrock <colin@viebrock.ca>
  * @link    http://github.com/cviebrock/thumbnailable
  */
@@ -17,6 +17,15 @@ return array(
 	 * (we'll try and create this directory if it doesn't exist)
 	 */
 	'storage_dir' => path('storage') . 'uploads' . DS . 'thumbnails',
+
+
+	/**
+	 * What is the path to the images?
+	 * (you'll need to define this depending on how you are making the `storage_dir`
+	 * publically accessible.  Default assumes that you symlink the `storage_dir` to
+	 * your application's /public/img/thumbnails directory.
+	 */
+	'base_url' => '/img/thumbnails',
 
 
 	/**
@@ -52,12 +61,13 @@ return array(
 	 *           (padding it, if necessary) and maintains the aspect ratio.
 	 * "exact" - simply resizes the original image to the dimensions of the
 	 *           thumbnail with no regard for aspect ratio.
- 	 */
+	 */
 	'resize_method' => 'crop',
 
 
 	/**
 	 *  Image format for thumbnailed images: one of "jpg", "png" or "gif".
+	 *  Set to "auto" will follow original file's extension.
 	 */
 	'thumbnail_format' => 'jpg',
 

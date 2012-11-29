@@ -4,7 +4,7 @@
  * Easy thumbnailing for your Eloquent models.
  *
  * @package Thumbnailable
- * @version 1.2
+ * @version 1.3
  * @author  Colin Viebrock <colin@viebrock.ca>
  * @link    http://github.com/cviebrock/thumbnailable
  */
@@ -32,11 +32,40 @@ trait Thumbnailable {
 	 * @param  string  $field
 	 * @param  string  $size
 	 * @return string
-	 * @see    Thumbnailer::get
+	 * @see    Thumbnailer::get_path
 	 */
 	public function thumbnail_path( $field=null, $size=null )
 	{
 		return Thumbnailer::get_path( $this, $field, $size );
+	}
+
+	/**
+	 * Get the URL to a resized image
+	 *
+	 * @param  string  $field
+	 * @param  string  $size
+	 * @return string
+	 * @see    Thumbnailer::get_url
+	 */
+	public function thumbnail_url( $field=null, $size=null )
+	{
+		return Thumbnailer::get_url( $this, $field, $size );
+	}
+
+
+	/**
+	 * Get the <img> tag for a resized image
+	 *
+	 * @param  string  $field
+	 * @param  string  $size
+	 * @param  string  $alt
+	 * @param  array   $attributes
+	 * @return string
+	 * @see    Thumbnailer::get_url
+	 */
+	public function thumbnail_image( $field=null, $size=null, $alt=null, $attributes=array() )
+	{
+		return HTML::image( Thumbnailer::get_url( $this, $field, $size ), $alt, $attributes );
 	}
 
 }

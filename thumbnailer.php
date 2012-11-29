@@ -4,7 +4,7 @@
  * Easy thumbnailing for your Eloquent models.
  *
  * @package Thumbnailable
- * @version 1.2
+ * @version 1.3
  * @author  Colin Viebrock <colin@viebrock.ca>
  * @link    http://github.com/cviebrock/thumbnailable
  */
@@ -340,6 +340,21 @@ class Thumbnailer {
 
 
 	/**
+	 * Get the URL of a resized image
+	 *
+	 * @param  Model   &$model
+	 * @param  string  $field
+	 * @param  string  $size
+	 * @return string
+	 */
+	public static function get_url( &$model, $field=null, $size=null )
+	{
+		$base_url = static::config( $model, 'base_url', $field );
+		return $base_url . DS . static::get( $model, $field, $size );
+	}
+
+
+	/**
 	 * Generate all resized images for a give model and field
 	 *
 	 * @param  Model   &$model
@@ -385,9 +400,11 @@ class Thumbnailer {
 		$directory = static::config( $model, 'storage_dir', $field );
 		$format    = static::config( $model, 'thumbnail_format', $field );
 
+		if ( $format == 'auto' ) {
+			$format = File::extension( $original_file );
+		}
 		$new_file = rtrim( $original_file, File::extension( $original_file ) ) .
 			Str::lower($size) . '.' . $format;
-
 
 		// if we already have a cached copy, return it
 		if ( $use_cache && File::exists( $directory . DS . $new_file ) ) {
