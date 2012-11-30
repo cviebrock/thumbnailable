@@ -9,7 +9,7 @@ Easy thumbnailing for your Eloquent models!
 Install the bundle using Artisan:
 
 ```
-php artisan bundle::install thumbnailable
+php artisan bundle:install thumbnailable
 ```
 
 Update your `application/bundles.php` file with:
