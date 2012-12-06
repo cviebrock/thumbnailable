@@ -47,3 +47,7 @@
 - added `base_url` config to define base URL route to thumbnail images
 - thumbnail_url() method to return full URL to a thumbnail
 - thumbnail_image() method to return HTML tag for a thumbnail
+
+### Version 1.x -- xx-xxx-201x
+
+- register Resizer bundle automatically (thanks @sahanz)
