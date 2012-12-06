@@ -420,6 +420,7 @@ class Thumbnailer {
 		$method  = static::config( $model, 'resize_method', $field );
 		$quality = static::config( $model, 'thumbnail_quality', $field );
 
+		Bundle::register('resizer');
 		Bundle::start('resizer');
 
 		$success = Resizer::open( $directory . DS . $original_file )
