@@ -423,7 +423,7 @@ class Dog extends Eloquent
 
 		self::$thumbnailable['storage_dir'] = path('storage'). 'uploads' . DS . 'dog_pics';
 
-		parent::__construct($attribues, $exists);
+		parent::__construct($attributes, $exists);
 
 	}
 
