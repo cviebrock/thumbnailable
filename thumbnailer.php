@@ -225,7 +225,8 @@ class Thumbnailer {
 			return true;
 		}
 
-		if( !$model->changed($field) ) {
+		// skip deletion if we are asking to clean the old files and the model hasn't changed
+		if( !$current && !$model->changed($field) ) {
 			return true;
 		}
 
