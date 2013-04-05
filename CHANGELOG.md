@@ -1,6 +1,13 @@
 # Changelog
 
 
+### Version 1.5-- 05-Apr-2013
+
+- fix issue #15 - File upload hijack attempt error when no upload is made
+  (thanks @iwiznia, although I used different code to fix it)
+- fix issue #19 - Use "/" instead of `DS` when building URLs. (thanks @ehsanquddusi)
+
+
 ### Version 1.4 -- 17-Dec-2012
 
 - register Resizer bundle automatically (thanks @sahanz)
