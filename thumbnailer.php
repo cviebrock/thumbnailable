@@ -360,7 +360,7 @@ class Thumbnailer {
 	public static function get_url( &$model, $field=null, $size=null )
 	{
 		$base_url = static::config( $model, 'base_url', $field );
-		return $base_url . DS . static::get( $model, $field, $size );
+		return $base_url . '/' . static::get( $model, $field, $size );
 	}
 
 
