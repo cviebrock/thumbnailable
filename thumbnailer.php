@@ -110,6 +110,15 @@ class Thumbnailer {
 					continue;
 				}
 
+				// check for upload errors
+				if ( $array['error'] == UPLOAD_ERR_NO_FILE ) {
+					// skip if no file was uploaded
+					continue;
+				} else if ( $array['error'] != UPLOAD_ERR_OK ) {
+					// throw upload errors
+					throw new \Exception("File upload error ({$array['error']}).");
+				}
+
 				// make sure it's an uploaded file
 				if ( !is_uploaded_file( $array['tmp_name'] ) ) {
 					throw new \Exception("File upload hijack attempt!");
@@ -225,7 +234,8 @@ class Thumbnailer {
 			return true;
 		}
 
-		if( !$model->changed($field) ) {
+		// skip deletion if we are asking to clean the old files and the model hasn't changed
+		if( !$current && !$model->changed($field) ) {
 			return true;
 		}
 
@@ -350,7 +360,7 @@ class Thumbnailer {
 	public static function get_url( &$model, $field=null, $size=null )
 	{
 		$base_url = static::config( $model, 'base_url', $field );
-		return $base_url . DS . static::get( $model, $field, $size );
+		return $base_url . '/' . static::get( $model, $field, $size );
 	}
 
 

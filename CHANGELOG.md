@@ -1,15 +1,42 @@
 # Changelog
 
 
-### Version 0.1 -- 05-Sep-2012
+### Version 1.5-- 05-Apr-2013
 
-- initial (alpha) release
+- fix issue #15 - File upload hijack attempt error when no upload is made
+  (thanks @iwiznia, although I used different code to fix it)
+- fix issue #19 - Use "/" instead of `DS` when building URLs. (thanks @ehsanquddusi)
 
 
-### Version 0.2 -- 05-Sep-2012
+### Version 1.4 -- 17-Dec-2012
 
-- fix logic flaw with `strict_sizes`
-- add the ability to set thumbnail configuration in the model itself
+- register Resizer bundle automatically (thanks @sahanz)
+- fix bug where bundle wouldn't delete files when model was deleted (thanks @danielboggs)
+
+
+### Version 1.3 -- 29-Nov-2012
+
+- add `thumbnail_format` option "auto", which will reuse the file format/extension
+  of the original image (thanks @markwu)
+- added `base_url` config to define base URL route to thumbnail images
+- thumbnail_url() method to return full URL to a thumbnail
+- thumbnail_image() method to return HTML tag for a thumbnail
+
+
+### Version 1.2 -- 13-Nov-2012
+
+- old thumbnails are now removed when a model is updated with a new image (thanks @markwu)
+
+
+### Version 1.1 -- 12-Sep-2012
+
+- fix issue where all models are assumed to be thumbnailable
+
+
+### Version 1.0.1 -- 07-Sep-2012
+
+- fix typo (was too eager to release)
+- change default `thumbnail_format` config to "jpg"
 
 
 ### Version 1.0 -- 07-Sep-2012
@@ -25,25 +52,12 @@
   model-level configuration is done in model
 
 
-### Version 1.0.1 -- 07-Sep-2012
+### Version 0.2 -- 05-Sep-2012
 
-- fix typo (was too eager to release)
-- change default `thumbnail_format` config to "jpg"
-
-
-### Version 1.1 -- 12-Sep-2012
-
-- fix issue where all models are assumed to be thumbnailable
+- fix logic flaw with `strict_sizes`
+- add the ability to set thumbnail configuration in the model itself
 
 
-### Version 1.2 -- 13-Nov-2012
+### Version 0.1 -- 05-Sep-2012
 
-- old thumbnails are now removed when a model is updated with a new image (thanks @markwu)
-
-### Version 1.3 -- 29-Nov-2012
-
-- add `thumbnail_format` option "auto", which will reuse the file format/extension
-  of the original image (thanks @markwu)
-- added `base_url` config to define base URL route to thumbnail images
-- thumbnail_url() method to return full URL to a thumbnail
-- thumbnail_image() method to return HTML tag for a thumbnail
+- initial (alpha) release

@@ -445,6 +445,13 @@ bundle installed.  Artisan should handle the dependency for you.
 
 And thanks to all the Github users who've give suggestions or (especially) merge requests.
 
+
+## Pull Requests
+
+If you find a bug, or have an improvement, please make a pull request against the
+_develop_ branch.
+
+
 ## NOTE
 
 Because this bundles uses PHP traits, it will only work if you are running PHP
