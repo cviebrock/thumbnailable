@@ -110,13 +110,17 @@ class Thumbnailer {
 					continue;
 				}
 
-				// check for upload errors
-				if ( $array['error'] == UPLOAD_ERR_NO_FILE ) {
-					// skip if no file was uploaded
-					continue;
-				} else if ( $array['error'] != UPLOAD_ERR_OK ) {
-					// throw upload errors
-					throw new \Exception("File upload error ({$array['error']}).");
+				// if there was an error on file upload, revert the field to the original value
+				// (so it won't be updated)
+				if ( $array['error'] != UPLOAD_ERR_OK ) {
+					$model->set_attribute($field, array_get($model->original, $field) );
+					// if the "error" was just that no file was uploaded,
+					// then continue
+					if ( $array['error'] == UPLOAD_ERR_NO_FILE ) {
+						continue;
+					}
+					// otherwise, throw the error for the app to handle
+					throw new \Exception("File upload error ({$array['error']}).", $array['error'] );
 				}
 
 				// make sure it's an uploaded file
@@ -250,7 +254,6 @@ class Thumbnailer {
 		// strip the extension
 		$ext = File::extension($original_file);
 		$basename = rtrim( $original_file, $ext );
-		$len = strlen($basename);
 
 		// iterate through the directory, looking for files that start with
 		// the basename
