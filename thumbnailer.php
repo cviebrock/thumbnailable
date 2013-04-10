@@ -4,7 +4,7 @@
  * Easy thumbnailing for your Eloquent models.
  *
  * @package Thumbnailable
- * @version 1.3
+ * @version 1.6
  * @author  Colin Viebrock <colin@viebrock.ca>
  * @link    http://github.com/cviebrock/thumbnailable
  */
@@ -410,14 +410,29 @@ class Thumbnailer {
 			return $original_file;
 		}
 
-		$directory = static::config( $model, 'storage_dir', $field );
-		$format    = static::config( $model, 'thumbnail_format', $field );
+		// we could pass an array instead of a size
+		// in which case we are specifiying directory and format for that particular size
+		// cast it all to an array and proceed accordingly
+		if ( !is_array($size) ) {
+			$size = array( 'size' => $size );
+		}
+
+		// get the directory, format, method, quality and dimensions
+		$directory  = array_get($size, 'storage_dir',       static::config( $model, 'storage_dir', $field ) );
+		$format     = array_get($size, 'thumbnail_format',  static::config( $model, 'thumbnail_format', $field ) );
+		$method     = array_get($size, 'resize_method',     static::config( $model, 'resize_method', $field ) );
+		$quality    = array_get($size, 'thumbnail_quality', static::config( $model, 'thumbnail_quality', $field ) );
+		$dimensions = array_get($size, 'size',      null );
+
+		if ( !$dimensions ) {
+			throw new \Exception("Can not generate thumbnail for $field: no dimensions given.", 1);
+		}
 
 		if ( $format == 'auto' ) {
 			$format = File::extension( $original_file );
 		}
 		$new_file = rtrim( $original_file, File::extension( $original_file ) ) .
-			Str::lower($size) . '.' . $format;
+			Str::lower($dimensions) . '.' . $format;
 
 		// if we already have a cached copy, return it
 		if ( $use_cache && File::exists( $directory . DS . $new_file ) ) {
@@ -425,13 +440,10 @@ class Thumbnailer {
 		}
 
 		if ( !File::exists( $directory . DS . $original_file ) ) {
-			throw new \Exception("Can not generate $size thumbnail for $field: no original.");
+			throw new \Exception("Can not generate $dimensions thumbnail for $field: no original.");
 		}
 
-		list( $dst_width, $dst_height ) = explode('x', Str::lower($size) );
-
-		$method  = static::config( $model, 'resize_method', $field );
-		$quality = static::config( $model, 'thumbnail_quality', $field );
+		list( $dst_width, $dst_height ) = explode('x', Str::lower($dimensions) );
 
 		Bundle::register('resizer');
 		Bundle::start('resizer');
