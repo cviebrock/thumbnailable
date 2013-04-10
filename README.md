@@ -320,6 +320,61 @@ $dog->thumbnail();
 ```
 
 
+## Per-Size Configuration
+
+Let's look at another example:
+
+```php
+class Dog extends Eloquent
+{
+
+	use Thumbnailable;
+
+	public static $thumbnailable = array(
+		'keep_original'    => false,
+		'resize_method'    => 'crop',
+		'thumbnail_format' => 'png',
+		'storage_dir'      => '/path/to/thumbnails',
+
+		'fields' => array(
+			'image' => array(
+				'sizes' => array(
+					'small'  => '50x50',
+					'medium' => '50x50',
+					'large'  => array(
+						'size'             => '200x200',
+						'resize_method'    => 'auto',
+						'thumbnail_format' => 'jpg',
+						'storage_dir'      => '/path/to/large/thumbnails',
+					),
+				),
+			),
+		),
+	);
+
+}
+```
+
+Here we've overrode some of the configuration options for the large
+thumbnails.  The "small" and "medium" sizes will be cropped to their respective
+dimensions, converted to PNG images, and stored in `/path/to/thumbnails`.
+However, the "large" size is resized using a the "auto" method, converted to a JPG,
+and stored in another directory.
+
+This gives you considerable flexibility in terms of generating thumbnails. For each
+size, you can pass a straight `width x height` string, or an array with any or all of
+the following fields:
+
+- `size` (mandatory)
+- `storage_dir`
+- `thumbnail_format`
+- `resize_method`
+- `thumbnail_quality`
+
+If you pass one or more of those values, they will be used when generating the thumbnails.
+If not, the bundle will use the default configuration value for that setting.
+
+
 ## Out-of-Model Configuration
 
 Another option for configuring your models is to handle it all in the
@@ -360,6 +415,13 @@ return array(
 			'image' => array(
 				'sizes' => array(
 					'small'  => '50x50',
+					'medium' => '50x50',
+					'large'  => array(
+						'size'             => '200x200',
+						'resize_method'    => 'auto',
+						'thumbnail_format' => 'jpg',
+						'storage_dir'      => path('storage'). 'uploads' . DS . 'large-thumbnails',
+					),
 				),
 			),
 		),
