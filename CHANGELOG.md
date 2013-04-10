@@ -1,7 +1,13 @@
 # Changelog
 
 
-### Version 1.5-- 05-Apr-2013
+### Version 1.6 -- 10-Apr-2013
+
+- per-size configuration - view the README.md for details
+	(suggested in issue #17 by @ehsanquddusi)
+
+
+### Version 1.5 -- 05-Apr-2013
 
 - fix issue #15 - File upload hijack attempt error when no upload is made
   (thanks @iwiznia, although I used different code to fix it)
