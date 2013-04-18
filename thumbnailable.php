@@ -4,7 +4,7 @@
  * Easy thumbnailing for your Eloquent models.
  *
  * @package Thumbnailable
- * @version 1.6
+ * @version 1.7
  * @author  Colin Viebrock <colin@viebrock.ca>
  * @link    http://github.com/cviebrock/thumbnailable
  */
@@ -65,7 +65,9 @@ trait Thumbnailable {
 	 */
 	public function thumbnail_image( $field=null, $size=null, $alt=null, $attributes=array() )
 	{
-		return HTML::image( Thumbnailer::get_url( $this, $field, $size ), $alt, $attributes );
+		if ( $url = Thumbnailer::get_url( $this, $field, $size ) ) {
+			return HTML::image( $url, $alt, $attributes );
+		}
 	}
 
 }

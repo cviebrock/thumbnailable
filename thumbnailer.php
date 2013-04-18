@@ -4,7 +4,7 @@
  * Easy thumbnailing for your Eloquent models.
  *
  * @package Thumbnailable
- * @version 1.6
+ * @version 1.7
  * @author  Colin Viebrock <colin@viebrock.ca>
  * @link    http://github.com/cviebrock/thumbnailable
  */
@@ -93,11 +93,6 @@ class Thumbnailer {
 				throw new \Exception("No storage directory specified for $class\->$field.");
 			}
 
-			// create it if it doesn't exist
-			if ( !File::mkdir($directory) ) {
-				throw new \Exception("Can not create directory $directory.");
-			}
-
 			// if the model is new or this field has changed, we thumbnail it
 			if ( !$model->exists || $model->changed($field) ) {
 
@@ -133,8 +128,21 @@ class Thumbnailer {
 					throw new \Exception("Uploaded $class\->$field is not a valid image file.");
 				}
 
-				// generate a random file name
-				$newfile = static::newfile( $directory, $ext );
+				// generate the new file name
+				// use the static method defined by the "newfile_method" in the config,
+				// or the Thumbnailer's default
+				if ( $method = static::config( $model, 'newfile_method' ) ) {
+					$newfile = forward_static_call( array($model,$method), $array['name'], $directory, $ext );
+				} else {
+					$newfile = static::newfile( $array['name'], $directory, $ext );
+				}
+
+				// make storage dir
+				// (do this now in case the newfile_method generates subdirectories)
+				$basedir = dirname($directory . DS . $newfile);
+				if ( !File::mkdir($basedir) ) {
+					throw new \Exception("Can not create directory $basedir.");
+				}
 
 				// move uploaded file to new location
 				if ( !move_uploaded_file( $array['tmp_name'], $directory . DS . $newfile ) ) {
@@ -251,22 +259,42 @@ class Thumbnailer {
 			return true;
 		}
 
+		// create the full original file
+		// (since it might include subdirectories from a custom newfile_method)
+
+		$full_original = $directory . DS . $original_file;
+
+		// find the base directory and base filename
+		$basedir = dirname($full_original);
+		$basefile = basename($full_original);
+
 		// strip the extension
-		$ext = File::extension($original_file);
-		$basename = rtrim( $original_file, $ext );
+		$ext = File::extension($basefile);
+		$basefile = rtrim( $basefile, $ext );
 
 		// iterate through the directory, looking for files that start with
 		// the basename
 
-		$iterator = new DirectoryIterator($directory);
+		$iterator = new DirectoryIterator($basedir);
+		$is_empty = true;
 		foreach( $iterator as $file ) {
-			if ($file->isFile() && strpos( $file->getFilename(), $basename )===0 ) {
+			if ($file->isFile() && strpos( $file->getFilename(), $basefile )===0 ) {
 
 				if ( !File::delete( $file->getPathName() ) ) {
 					throw new \Exception("Could not delete ".$file->getPathName()."." );
 				}
 
+			} else {
+				// the directory contains something else; check if it's just "." or ".."
+				if ( str_replace('.', '', $file->getFilename()) != '' ) {
+					$is_empty = false;
+				}
 			}
+		}
+
+		// if there's a custom subdirectory, and it's empty, delete that too
+		if ( $basedir != $directory && $is_empty ) {
+			@rmdir($basedir);
 		}
 
 		return true;
@@ -348,7 +376,9 @@ class Thumbnailer {
 	public static function get_path( &$model, $field=null, $size=null )
 	{
 		$directory = static::config( $model, 'storage_dir', $field );
-		return $directory . DS . static::get( $model, $field, $size );
+		if ( $path = static::get( $model, $field, $size ) ) {
+			return $directory . DS . $path;
+		}
 	}
 
 
@@ -363,7 +393,9 @@ class Thumbnailer {
 	public static function get_url( &$model, $field=null, $size=null )
 	{
 		$base_url = static::config( $model, 'base_url', $field );
-		return $base_url . '/' . static::get( $model, $field, $size );
+		if ( $path = static::get( $model, $field, $size ) ) {
+			return $base_url . '/' . static::get( $model, $field, $size );
+		}
 	}
 
 
@@ -404,6 +436,9 @@ class Thumbnailer {
 	{
 
 		$original_file = $model->get_attribute($field);
+
+		// no image?
+		if ( !$original_file ) return null;
 
 		// did we ask for the original?
 		if ( $size=='original' ) {
@@ -468,7 +503,7 @@ class Thumbnailer {
 	 * @param  string  $extension
 	 * @return string
 	 */
-	private static function newfile( $directory, $ext=null )
+	private static function newfile( $original_name, $directory, $ext=null )
 	{
 		do {
 			$filename = Str::random(24) . ( $ext ? '.' . $ext : '' );
