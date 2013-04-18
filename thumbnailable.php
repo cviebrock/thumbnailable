@@ -65,7 +65,9 @@ trait Thumbnailable {
 	 */
 	public function thumbnail_image( $field=null, $size=null, $alt=null, $attributes=array() )
 	{
-		return HTML::image( Thumbnailer::get_url( $this, $field, $size ), $alt, $attributes );
+		if ( $url = Thumbnailer::get_url( $this, $field, $size ) ) {
+			return HTML::image( $url, $alt, $attributes );
+		}
 	}
 
 }

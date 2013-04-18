@@ -126,6 +126,7 @@ return array(
 	'resize_method'     => 'crop',
 	'thumbnail_format'  => 'png',
 	'thumbnail_quality' => 80,
+	'newfile_method'    => false,
 
 );
 ```
@@ -176,6 +177,61 @@ will be same image type as the original images.
 `thumbnail_quality` is an integer from 0 to 100 and determines (for PNG and
 JPG images) the quality or compression of the thumbnail (0 is lowest
 quality/highest compression, 100 is best quality/no compression).
+
+`newfile_method` lets you override Thumbnailable's internal logic that renames file
+uploads.  By default, any uploaded files are give an random 24-character filename and
+stored in the directory defined by `storage_dir`.  This might be okay for most users,
+but for applications with lots of thumbnailed images, you might run up against the
+32k-files-per-directory limit.  You also might have other reasons to want to use a
+different naming scheme.
+
+In order to use a custom scheme, you should create a static class in your model that
+generates a name, and save the name of that method to the `newfile_method` configuration
+option.  (Alternatively, just name your static method `newfile` to override the one
+in the trait.)
+
+The class takes three arguments: the original filename, the base storage directory
+(i.e. `storage_dir`, which may be vary per-model or per-field), and the uploaded file
+extension.
+
+As an example, you could put this in your configuration:
+
+```
+'newfile_method' => 'thumbnailer_newfile',
+```
+
+And this in your model (or base model, if you like):
+
+```php
+/**
+ * Custom file namer for Thumbnailable
+ *
+ * In this particular case, the files are going to be stored in:
+ *
+ * base_directory
+ *   /slug_of_model_class/
+ *     /random-6-character-directory
+ *       /original_filename
+ *
+ * @param  {string} $original  The original name of the uploaded file
+ * @param  {string} $directory The base storage directory
+ * @param  {string} $ext       The file extension
+ * @return {string}            Path and new filename (relative to $directory, above) for
+ *                             the uploaded images.
+ */
+public static function thumbnailer_newfile( $original, $directory, $ext ) {
+	do {
+		$newdir = Str::slug( get_called_class() ) . DS . Str::random(6);
+	} while ( File::exists( $directory . DS . $newdir ) );
+	return $newdir . DS . $original;
+}
+```
+
+The end result is that when I upload "Colin.jpg" to my Person model, it will be stored
+somewhere like `/storage/uploads/person/jmdY7a/Colin.jpg`.
+
+The only caveat is that your static method should check that the new filename doesn't
+already exist, or it could be over-write existing files.
 
 
 ## Model Configuration
