@@ -4,7 +4,7 @@
  * Easy thumbnailing for your Eloquent models.
  *
  * @package Thumbnailable
- * @version 1.6
+ * @version 1.7.1
  * @author  Colin Viebrock <colin@viebrock.ca>
  * @link    http://github.com/cviebrock/thumbnailable
  */
