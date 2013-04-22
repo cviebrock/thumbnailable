@@ -190,9 +190,9 @@ generates a name, and save the name of that method to the `newfile_method` confi
 option.  (Alternatively, just name your static method `newfile` to override the one
 in the trait.)
 
-The class takes three arguments: the original filename, the base storage directory
-(i.e. `storage_dir`, which may be vary per-model or per-field), and the uploaded file
-extension.
+The class takes four arguments: the original filename, the base storage directory
+(i.e. `storage_dir`, which may be vary per-model or per-field), the uploaded file
+extension, and the field being thumbnailed.
 
 As an example, you could put this in your configuration:
 
@@ -216,10 +216,11 @@ And this in your model (or base model, if you like):
  * @param  {string} $original  The original name of the uploaded file
  * @param  {string} $directory The base storage directory
  * @param  {string} $ext       The file extension
+ * @param  {string} $field     The field being thumbnailed
  * @return {string}            Path and new filename (relative to $directory, above) for
  *                             the uploaded images.
  */
-public static function thumbnailer_newfile( $original, $directory, $ext ) {
+public static function thumbnailer_newfile( $original, $directory, $ext, $field ) {
 	do {
 		$newdir = Str::slug( get_called_class() ) . DS . Str::random(6);
 	} while ( File::exists( $directory . DS . $newdir ) );
@@ -232,6 +233,8 @@ somewhere like `/storage/uploads/person/jmdY7a/Colin.jpg`.
 
 The only caveat is that your static method should check that the new filename doesn't
 already exist, or it could be over-write existing files.
+
+See the `example_newfile_methods.md` file for more ideas.
 
 
 ## Model Configuration

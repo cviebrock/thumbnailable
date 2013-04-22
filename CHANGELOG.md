@@ -1,6 +1,13 @@
 # Changelog
 
 
+### Version 1.7.1 -- 22-Apr-2013
+
+- `newfile_method` methods now are passed the field which is being thumbnailed
+  (e.g. "headshot"), so that generated filenames can take advantage of that.
+- Added file with example code for various file naming schemes.
+
+
 ### Version 1.7 -- 17-Apr-2013
 
 - `newfile_method` option, which allows you to define a static method in your model

@@ -131,10 +131,10 @@ class Thumbnailer {
 				// generate the new file name
 				// use the static method defined by the "newfile_method" in the config,
 				// or the Thumbnailer's default
-				if ( $method = static::config( $model, 'newfile_method' ) ) {
-					$newfile = forward_static_call( array($model,$method), $array['name'], $directory, $ext );
+				if ( $method = static::config( $model, 'newfile_method', $field ) ) {
+					$newfile = forward_static_call( array($model,$method), $array['name'], $directory, $ext, $field );
 				} else {
-					$newfile = static::newfile( $array['name'], $directory, $ext );
+					$newfile = static::newfile( $array['name'], $directory, $ext, $field );
 				}
 
 				// make storage dir
@@ -499,11 +499,13 @@ class Thumbnailer {
 	/**
 	 * Generate random filename (and check it doesn't exist).
 	 *
+	 * @param  string  $original_name
 	 * @param  string  $directory
 	 * @param  string  $extension
+	 * @param  string  $field
 	 * @return string
 	 */
-	private static function newfile( $original_name, $directory, $ext=null )
+	private static function newfile( $original_name, $directory, $ext, $field )
 	{
 		do {
 			$filename = Str::random(24) . ( $ext ? '.' . $ext : '' );
